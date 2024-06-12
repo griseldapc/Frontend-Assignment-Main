@@ -3,7 +3,7 @@ import authConfig from '@/config/auth'
 import {type JwtPayload, jwtDecode} from 'jwt-decode'
 
 const api = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_REST_API_URL,
+    baseURL: process.env.NEXT_PUBLIC_,
     timeout: 30000
 })
 

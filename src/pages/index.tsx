@@ -1,24 +1,69 @@
-import * as React from "react";
-import Container from "@mui/material/Container";
-import Typography from "@mui/material/Typography";
-import Box from "@mui/material/Box";
-import Table from "@/components/Table/Index";
+import React, { useState, useEffect } from 'react';
+import client from '@/client';
+import Table from '@/components/Table/Index';
 
-export default function Home() {
+const Home = () => {
+    const [data, setData] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [filter, setFilter] = useState({});
+
+    useEffect(() => {
+        const fetchData = async () => {
+            setLoading(true);
+            try {
+                const accessToken = localStorage.getItem('accessToken');
+                const response = await client.api.get('/items/perusahaan_bei', {
+                    headers: {
+                        Authorization: 'Bearer ' + accessToken
+                    },
+                    params: filter
+                });
+                setData(response.data.data);
+                setLoading(false);
+            } catch (error) {
+                setError(error);
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, [filter]);
+
+    const columns = [
+        { field: 'nama', label: 'Nama' },
+        { field: 'kode_saham', label: 'Kode Saham' },
+        { field: 'sektor_id', label: 'Sektor ID' },
+        { field: 'tanggal_listing', label: 'Tanggal Listing' }
+    ];
+
+    if (loading) return <div>Loading...</div>;
+    if (error) return <div>Error: {error.message}</div>;
+
+    const filters = [
+        { name: 'Nama', field: 'nama', type: 'text' },
+        { name: 'Kode Saham', field: 'kode_saham', type: 'text' },
+        { name: 'Sektor ID', field: 'sektor_id', type: 'text' },
+        { name: 'Tanggal Listing', field: 'tanggal_listing', type: 'date' }
+    ];
+
+    const dataFetchService = () => ({
+        data: { data: data },
+        isLoading: loading,
+        error: error,
+        isSuccess: !loading && !error
+    });
+
     return (
-        <Box
-            sx={{
-                my: 4,
-                width: "100%",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "center",
-            }}
-        >
-            <Typography variant="h4" component="h1" sx={{mb: 2}}>
-                Hello world
-            </Typography>
-        </Box>
+        <Table
+            dataFetchService={dataFetchService}
+            columns={columns}
+            limit={10}
+            filters={filters}
+            title="Data Perusahaan BEI"
+            onFilterChange={setFilter}
+        />
     );
-}
+};
+
+export default Home;

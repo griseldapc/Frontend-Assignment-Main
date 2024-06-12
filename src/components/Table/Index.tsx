@@ -38,52 +38,53 @@ const Table = ({ dataFetchService, limit = 10, filters = [], ...props }: PropsTa
     filter:
       filterValues.length || debouncedSearch
         ? {
-            _and: filterValues.length
-              ? filterValues.map(filterValue => {
-                  if (filterValue.type === 'dropdown-multiple') {
-                    return dropdownMultipleFilterObj({
-                      field: filterValue.field,
-                      value: filterValue.values.map(value => value.value)
-                    })
-                  }
+          _and: filterValues.length
+            ? filterValues.map(filterValue => {
+              if (filterValue.type === 'dropdown-multiple') {
+                return dropdownMultipleFilterObj({
+                  field: filterValue.field,
+                  value: filterValue.values.map(value => value.value)
+                })
+              }
 
-                  return dateFilterObj({
-                    field: filterValue.field,
-                    date: filterValue.values[0].value
-                  })
-                })
-              : undefined,
-            _or: debouncedSearch
-              ? searchFilterObj({
-                  fields: props.columns.filter(column => column.searchable).map(column => column.field),
-                  value: debouncedSearch
-                })
-              : undefined
-          }
+              return dateFilterObj({
+                field: filterValue.field,
+                date: filterValue.values[0].value
+              })
+            })
+            : undefined,
+          _or: debouncedSearch
+            ? searchFilterObj({
+              fields: props.columns.filter(column => column.searchable).map(column => column.field),
+              value: debouncedSearch
+            })
+            : undefined
+        }
         : undefined,
-    sort: sortModel.length
-      ? [`${sortModel[0].sort === 'desc' ? '-' : ''}${sortModel[0].field}`, 'id'].toString()
-      : undefined
+        sort: sortModel.length
+        ? [sortModel[0].sort === 'desc' ? '-' : '', sortModel[0].field, 'id'].toString()
+        : undefined      
   })
 
   const content = () => {
     if (isLoading) {
       return (
         <Box sx={{ mt: 6, display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
-          <Skeleton variant='rectangular' width='100%' height={60} />
-          {Array(limit)
-            .fill(null)
-            .map((_, i) => (
-              <Skeleton
-                key={`table-skeleton-${i}`}
-                animation='wave'
-                sx={{ mt: 1 }}
-                variant='rectangular'
-                width='100%'
-                height={30}
-              />
-            ))}
-        </Box>
+  <Skeleton variant='rectangular' width='100%' height={60} />
+  {Array(limit)
+    .fill(null)
+    .map((_, i) => (
+      <Skeleton
+        key={`table-skeleton-${i}`}
+        animation='wave'
+        sx={{ mt: 1 }}
+        variant='rectangular'
+        width='100%'
+        height={30}
+      />
+    ))}
+</Box>
+
       )
     }
 
@@ -114,13 +115,13 @@ const Table = ({ dataFetchService, limit = 10, filters = [], ...props }: PropsTa
             },
             ...(props.isStripped
               ? {
-                  '&.MuiDataGrid-root .MuiDataGrid-row:nth-of-type(even)': {
-                    backgroundColor: '#F5F8FF'
-                  },
-                  '&.MuiDataGrid-root .MuiDataGrid-row .MuiDataGrid-cell': {
-                    border: 0
-                  }
+                '&.MuiDataGrid-root .MuiDataGrid-row:nth-of-type(even)': {
+                  backgroundColor: '#F5F8FF'
+                },
+                '&.MuiDataGrid-root .MuiDataGrid-row .MuiDataGrid-cell': {
+                  border: 0
                 }
+              }
               : {})
           }}
           rows={(dataRaw?.data as any[]) ?? []}
@@ -216,16 +217,17 @@ const Table = ({ dataFetchService, limit = 10, filters = [], ...props }: PropsTa
             <Fragment key={filterValue.name}>
               {filterValue.values.map(value => (
                 <Box
-                  key={`${filterValue.name}-${value.value}`}
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    border: theme => `1px solid ${theme.palette.grey[200]}`,
-                    padding: '5px 10px',
-                    borderRadius: '9999px',
-                    columnGap: '10px'
-                  }}
-                >
+                key={`${filterValue.name}-${value.value}`}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  border: theme => `1px solid ${theme.palette.grey[200]}`,
+                  padding: '5px 10px',
+                  borderRadius: '9999px',
+                  columnGap: '10px'
+                }}
+              >
+              
                   <Box sx={{ display: 'flex', columnGap: '6px' }}>
                     <Typography variant='body1' color='text.secondary'>
                       {filterValue.name} :
@@ -243,7 +245,6 @@ const Table = ({ dataFetchService, limit = 10, filters = [], ...props }: PropsTa
                       if (!newValues.length) {
                         filterValuesCopy.splice(index, 1)
                         setFilterValues(filterValuesCopy)
-
                         return
                       }
                       setFilterValues(
@@ -278,16 +279,17 @@ const Table = ({ dataFetchService, limit = 10, filters = [], ...props }: PropsTa
         justifyContent='space-between'
         {...(props.title ? { marginTop: '20px' } : { padding: '20px' })}
       >
-        <Typography fontSize='14px' letterSpacing='0.25px' color='text.secondary'>
-          Showing {dataRaw?.data.length ? (page - 1) * limit + 1 : 0} to{' '}
-          {(page - 1) * limit + (dataRaw?.data.length ?? 0)} of {dataRaw?.meta.filter_count ?? 0} entries
-        </Typography>
-        <Pagination
-          count={Math.ceil((dataRaw?.meta.filter_count ?? 0) / limit)}
-          page={page}
-          onChange={(_, value) => setPage(value)}
-          shape='rounded'
-        />
+       <Typography fontSize='14px' letterSpacing='0.25px' color='text.secondary'>
+    Showing {dataRaw?.data.length ? (page - 1) * limit + 1 : 0} to{' '}
+    {(page - 1) * limit + (dataRaw?.data.length ?? 0)} of {dataRaw?.meta?.filter_count ?? 0} entries
+</Typography>
+<Pagination
+    count={Math.ceil(((dataRaw?.meta?.filter_count ?? 0) / limit))}
+    page={page}
+    onChange={(_, value) => setPage(value)}
+    shape='rounded'
+/>
+
       </Box>
     </Box>
   )
